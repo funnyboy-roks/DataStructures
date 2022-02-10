@@ -83,10 +83,15 @@ public class HashSetQuadraticProbing/*(ish)*/<E> implements Set<E> {
         if (e == null) throw new IllegalArgumentException("Cannot add a null value.");
         int hash = this.hash(e);
         if (this.contains(e)) return false;
+        if(this.size / (double) this.buckets.length > LOAD_FACTOR_THRESHOLD) {
+            this.resize(this.buckets.length * 2);
+        }
         switch (this.bucketStatus[hash]) {
             case EMPTY, DELETED -> {
                 this.buckets[hash] = new Type<>(e);
                 this.bucketStatus[hash] = FULL;
+                ++this.size;
+                return true;
             }
             case FULL -> {
                 int i = hash;
@@ -95,14 +100,14 @@ public class HashSetQuadraticProbing/*(ish)*/<E> implements Set<E> {
                     if (this.bucketStatus[i] != FULL) {
                         this.buckets[i] = new Type<>(e);
                         this.bucketStatus[i] = FULL;
+                        ++this.size;
                         return true;
                     }
                     i = (i + di++) % this.buckets.length;
                 } while (i != hash);
             }
         }
-        ++this.size;
-        return true;
+        return false;
     }
 
     @Override
