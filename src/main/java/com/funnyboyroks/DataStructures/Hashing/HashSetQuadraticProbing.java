@@ -3,10 +3,10 @@ package com.funnyboyroks.DataStructures.Hashing;
 import java.lang.reflect.Array;
 import java.util.*;
 
-public class HashSetLinearProbing<E> implements Set<E> {
+public class HashSetQuadraticProbing/*(ish)*/<E> implements Set<E> {
 
     public static void main(String[] args) {
-        var set = new HashSetLinearProbing<Integer>();
+        var set = new HashSetQuadraticProbing<Integer>();
         for (int i = 0; i < 10; ++i) {
             int num = (int) (Math.random() * 100);
             boolean out = set.add(num);
@@ -27,7 +27,7 @@ public class HashSetLinearProbing<E> implements Set<E> {
     private static final int EMPTY   = 0;
     private static final int FULL    = 1;
 
-    public HashSetLinearProbing() {
+    public HashSetQuadraticProbing() {
         this.size = 0;
         this.buckets = (Type<E>[]) Array.newInstance(Type.class, 13);
         this.bucketStatus = new int[13];
@@ -49,9 +49,10 @@ public class HashSetLinearProbing<E> implements Set<E> {
         switch (this.bucketStatus[hash]) {
             case FULL, DELETED -> {
                 int index = hash;
+                int di = 1;
                 do {
                     if (Objects.equals(this.buckets[index], o)) return true;
-                    index = (index + 1) % this.buckets.length;
+                    index = (index + di++) % this.buckets.length;
                 } while (index != hash);
             }
         }
@@ -89,13 +90,14 @@ public class HashSetLinearProbing<E> implements Set<E> {
             }
             case FULL -> {
                 int i = hash;
+                int di = 1;
                 do {
                     if (this.bucketStatus[i] != FULL) {
                         this.buckets[i] = new Type<>(e);
                         this.bucketStatus[i] = FULL;
                         return true;
                     }
-                    i = (i + 1) % this.buckets.length;
+                    i = (i + di++) % this.buckets.length;
                 } while (i != hash);
             }
         }
@@ -118,6 +120,7 @@ public class HashSetLinearProbing<E> implements Set<E> {
                     return true;
                 }
                 int index = hash + 1;
+                int di = 1;
                 while (this.bucketStatus[index] != EMPTY) {
                     if (Objects.equals(this.buckets[index], o)) {
                         this.buckets[index] = null;
@@ -125,7 +128,7 @@ public class HashSetLinearProbing<E> implements Set<E> {
                         --this.size;
                         return true;
                     }
-                    index = (index + 1) % this.buckets.length;
+                    index = (index + di++) % this.buckets.length;
                     if (index == hash) return false;
                 }
             }
