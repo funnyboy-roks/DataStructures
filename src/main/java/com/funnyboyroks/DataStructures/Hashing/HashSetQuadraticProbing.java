@@ -19,9 +19,9 @@ public class HashSetQuadraticProbing/*(ish)*/<E> implements Set<E> {
 
     private static final double LOAD_FACTOR_THRESHOLD = .75;
 
-    private int       size;
-    private Type<E>[] buckets;
-    private int[]     bucketStatus; // Uses the statuses below
+    private int          size;
+    private Wrapper<E>[] buckets;
+    private int[]        bucketStatus; // Uses the statuses below
 
     private static final int DELETED = -1;
     private static final int EMPTY   = 0;
@@ -29,7 +29,7 @@ public class HashSetQuadraticProbing/*(ish)*/<E> implements Set<E> {
 
     public HashSetQuadraticProbing() {
         this.size = 0;
-        this.buckets = (Type<E>[]) Array.newInstance(Type.class, 13);
+        this.buckets = (Wrapper<E>[]) Array.newInstance(Wrapper.class, 13);
         this.bucketStatus = new int[13];
     }
 
@@ -70,7 +70,7 @@ public class HashSetQuadraticProbing/*(ish)*/<E> implements Set<E> {
 
     @Override
     public Object[] toArray() {
-        return Arrays.stream(this.buckets).filter(Objects::nonNull).map(Type::data).toArray();
+        return Arrays.stream(this.buckets).filter(Objects::nonNull).map(Wrapper::box).toArray();
     }
 
     @Override
@@ -88,7 +88,7 @@ public class HashSetQuadraticProbing/*(ish)*/<E> implements Set<E> {
         }
         switch (this.bucketStatus[hash]) {
             case EMPTY, DELETED -> {
-                this.buckets[hash] = new Type<>(e);
+                this.buckets[hash] = new Wrapper<>(e);
                 this.bucketStatus[hash] = FULL;
                 ++this.size;
                 return true;
@@ -98,7 +98,7 @@ public class HashSetQuadraticProbing/*(ish)*/<E> implements Set<E> {
                 int di = 1;
                 do {
                     if (this.bucketStatus[i] != FULL) {
-                        this.buckets[i] = new Type<>(e);
+                        this.buckets[i] = new Wrapper<>(e);
                         this.bucketStatus[i] = FULL;
                         ++this.size;
                         return true;
@@ -168,7 +168,7 @@ public class HashSetQuadraticProbing/*(ish)*/<E> implements Set<E> {
 
     private void resize(int size) {
         this.size = 0;
-        this.buckets = (Type<E>[]) Array.newInstance(Type.class, size);
+        this.buckets = (Wrapper<E>[]) Array.newInstance(Wrapper.class, size);
         this.bucketStatus = new int[size];
     }
 
@@ -177,10 +177,10 @@ public class HashSetQuadraticProbing/*(ish)*/<E> implements Set<E> {
     }
 
     private void rehash() {
-        Type<E>[] oldBuckets = this.buckets;
+        Wrapper<E>[] oldBuckets = this.buckets;
         this.resize(2 * oldBuckets.length);
-        for (Type<E> bucket : oldBuckets) {
-            if (bucket != null) this.add(bucket.data());
+        for (Wrapper<E> bucket : oldBuckets) {
+            if (bucket != null) this.add(bucket.box());
         }
     }
 
@@ -189,7 +189,7 @@ public class HashSetQuadraticProbing/*(ish)*/<E> implements Set<E> {
         return Arrays.toString(this.toArray());
     }
 
-    private record Type<R>(R data) {
+    private record Wrapper<R>(R box) {
 
     }
 }
