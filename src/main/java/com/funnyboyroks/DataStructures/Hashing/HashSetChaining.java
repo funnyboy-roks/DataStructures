@@ -102,9 +102,8 @@ public class HashSetChaining<E> implements Set<E> {
     @Override
     public boolean remove(Object o) {
         int hash = hash(o);
-        Node current = this.buckets[hash];
         Node previous = null;
-        while (current != null) {
+        for(Node current = this.buckets[hash]; current != null; current = current.next) {
             if (current.data.equals(o)) {
                 if (previous == null) {
                     this.buckets[hash] = current.next;
@@ -115,7 +114,6 @@ public class HashSetChaining<E> implements Set<E> {
                 return true;
             }
             previous = current;
-            current = current.next;
         }
         return false;
     }
@@ -136,9 +134,8 @@ public class HashSetChaining<E> implements Set<E> {
         for (int i = 0; i < this.buckets.length; i++) {
             Node bucket = this.buckets[i];
             if (bucket == null) continue;
-            Node current = bucket;
             Node prev = null;
-            while (current != null) {
+            for(Node current = bucket; current != null; current = current.next) {
                 if (!c.contains(current.data)) {
                     if (prev == null) {
                         this.buckets[i] = current.next;
@@ -148,7 +145,6 @@ public class HashSetChaining<E> implements Set<E> {
                     changed = true;
                 }
                 prev = current;
-                current = current.next;
             }
         }
         return changed;
@@ -178,10 +174,8 @@ public class HashSetChaining<E> implements Set<E> {
         this.resize(2 * oldBuckets.length);
         for (Node bucket : oldBuckets) {
             if (bucket == null) continue;
-            Node current = bucket;
-            while (current != null) {
+            for(Node current = bucket; current != null; current = current.next) {
                 this.add(current.data);
-                current = current.next;
             }
         }
     }
