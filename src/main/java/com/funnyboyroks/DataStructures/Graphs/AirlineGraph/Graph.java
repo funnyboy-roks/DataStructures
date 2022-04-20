@@ -84,7 +84,7 @@ public class Graph implements AirlineGraph {
         if (cheapestRoute == null) {
             return "There is no such connection!";
         }
-        return cheapestRoute.stream().map(i -> padStart(AirlineGraph.airportCode[i], 3)).collect(Collectors.joining(" -> ")) + " (" + minCost + ")";
+        return cheapestRoute.stream().map(i -> padStart(AirlineGraph.airportCode[i], 3)).collect(Collectors.joining(" -> ")) + " - £" + minCost;
 
     }
 
@@ -104,7 +104,7 @@ public class Graph implements AirlineGraph {
             cost += this.graph[this.stack.get(j)][this.stack.get(j + 1)];
         }
 
-        return this.stack.stream().map(i -> padStart(AirlineGraph.airportCode[i], 3)).collect(Collectors.joining(" -> ")) + " (" + cost + ")";
+        return this.stack.stream().map(i -> padStart(AirlineGraph.airportCode[i], 3)).collect(Collectors.joining(" -> ")) + " - £" + cost;
     }
 
     private Point getEdge(String start, String end) {
