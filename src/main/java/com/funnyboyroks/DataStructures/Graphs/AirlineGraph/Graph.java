@@ -17,40 +17,35 @@ public class Graph implements AirlineGraph {
         this.graph = parse(10, "connections.dat");
     }
 
-    public int[] shortestPath(String source) {
-        var src = this.findAirportCode(source);
+    public int[] shortestPath(String src) {
         var dist = new int[AirlineGraph.airportCode.length];
-        var sptSet = new boolean[AirlineGraph.airportCode.length];
+        var barr = new boolean[AirlineGraph.airportCode.length];
 
-        int count;
-        for (count = 0; count < AirlineGraph.airportCode.length; ++count) {
-            dist[count] = Integer.MAX_VALUE;
-            sptSet[count] = false;
-        }
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        Arrays.fill(barr, false);
 
-        dist[src] = 0;
+        dist[this.findAirportCode(src)] = 0;
 
-        for (count = 0; count < AirlineGraph.airportCode.length - 1; ++count) {
+        for (int i = 0; i < AirlineGraph.airportCode.length - 1; ++i) {
             int min = Integer.MAX_VALUE;
-            int n = -1;
+            int minI = -1;
 
-            for (int i = 0; i < AirlineGraph.airportCode.length; ++i) {
-                if (!sptSet[i] && dist[i] <= min) {
-                    min = dist[i];
-                    n = i;
+            for (int j = 0; j < AirlineGraph.airportCode.length; ++j) {
+                if (!barr[j] && dist[j] <= min) {
+                    min = dist[j];
+                    minI = j;
                 }
             }
 
-            int u = n;
-            sptSet[u] = true;
+            barr[minI] = true;
 
-            for (int i = 0; i < AirlineGraph.airportCode.length; ++i) {
+            for (int j = 0; j < AirlineGraph.airportCode.length; ++j) {
                 if (
-                    !sptSet[i] && this.graph[u][i] != 0
-                    && dist[u] != Integer.MAX_VALUE
-                    && dist[u] + this.graph[u][i] < dist[i]
+                    !barr[j] && this.graph[minI][j] != 0
+                    && dist[minI] != Integer.MAX_VALUE
+                    && dist[minI] + this.graph[minI][j] < dist[j]
                 ) {
-                    dist[i] = dist[u] + this.graph[u][i];
+                    dist[j] = dist[minI] + this.graph[minI][j];
                 }
             }
         }
@@ -68,7 +63,7 @@ public class Graph implements AirlineGraph {
             this.stack = new Stack<>();
             try {
                 findPath(i, new Point(findAirportCode(from), findAirportCode(to)));
-            } catch (StackOverflowError e) {
+            } catch (StackOverflowError e) { // hehe lmao -- e fish in sea
                 continue;
             }
             int cost = 0;
@@ -103,8 +98,13 @@ public class Graph implements AirlineGraph {
         }
         Collections.reverse(this.stack);
         this.stack.add(edge.y);
-        return this.stack.stream().map(i -> padStart(AirlineGraph.airportCode[i], 3)).collect(Collectors.joining(" -> "));
-//        return null;
+        int cost = 0;
+
+        for (int j = 0; j < this.stack.size() - 1; j++) {
+            cost += this.graph[this.stack.get(j)][this.stack.get(j + 1)];
+        }
+
+        return this.stack.stream().map(i -> padStart(AirlineGraph.airportCode[i], 3)).collect(Collectors.joining(" -> ")) + " (" + cost + ")";
     }
 
     private Point getEdge(String start, String end) {
